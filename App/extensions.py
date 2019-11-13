@@ -1,10 +1,12 @@
 from flask_caching import Cache
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import  SQLAlchemy
 
 models = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
 cache = Cache(config={
     "DEBUG": True,
     "CACHE_TYPE": "redis",
@@ -15,5 +17,6 @@ cache = Cache(config={
 def init_ext(app):
     models.init_app(app)
     migrate.init_app(app, models)
+    jwt.init_app(app)
     cache.init_app(app)
     DebugToolbarExtension(app)

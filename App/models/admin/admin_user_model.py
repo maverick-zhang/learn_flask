@@ -2,15 +2,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from App.extensions import models
 from App.models import BaseModel
-from App.models.movie_user.model_constants import COMMON_CUSTOMER
+from App.models.movie_user.model_constants import SUPER_ADMIN, COMMON_ADMIN
 
 
-class CustomerModel(BaseModel):
+class AdminModel(BaseModel):
     name = models.Column(models.String(64))
     _password = models.Column(models.String(256), nullable=False)
-    phone = models.Column(models.String(32), unique=True)
     is_delete = models.Column(models.Boolean, default=False)
-    permission = models.Column(models.Integer, default=COMMON_CUSTOMER)
+    is_super = models.Column(models.Boolean, default=False)
+    permission = models.Column(models.Integer, default=COMMON_ADMIN)
 
     @property
     def password(self):

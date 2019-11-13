@@ -10,3 +10,4 @@ App/settings.py
 dist/
 build/
 *.egg-info/
+migrations
