@@ -2,7 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from App.extensions import models
 from App.models import BaseModel
-from App.models.movie_user.model_constants import COMMON_CUSTOMER
+from App.models.model_constants import COMMON_CUSTOMER
 
 
 class CustomerModel(BaseModel):

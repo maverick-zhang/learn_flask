@@ -1,32 +1,44 @@
-from flask_jwt_extended import get_jwt_identity, get_current_user
+import uuid
+
+from flask_jwt_extended import get_jwt_identity, get_jwt_claims
 from flask_restful import abort
 
-from App.extensions import jwt
-from App.models.movie_user.model_constants import COMMON_CUSTOMER, BLACK_LIST_USER, SUPER_ADMIN
+from App.models.admin.admin_user_model import AdminModel
+from App.models.cinema_admin.cinema_user_model import CinemaUserModel
+from App.models.customer.customers import CustomerModel
+from App.models.model_constants import BLACK_LIST_USER
 
 
-def get_user(custom_id, model):
-    user = model.query.get(custom_id)
+def get_user(ident, model):
+    user = model.query.get(ident)
     if user:
         return user
-    elif model.query.filter(model.name == custom_id).first():
-        user = model.query.filter(model.name == custom_id).first()
-
+    elif model.query.filter(model.name == ident).first():
+        user = model.query.filter(model.name == ident).first()
         return user
     else:
         return False
 
 
-def current_user(identity, model):
-    user = model.query.filter(model.name == identity).first()
+def current_user():
+    ident = get_jwt_identity()
+    role = get_jwt_claims()["role"]
+    if role == "customer":
+        model = CustomerModel
+    elif role == "admin":
+        model = AdminModel
+    elif role == "cinema_user":
+        model = CinemaUserModel
+    else:
+        abort(400, msg="非法用户")
+    user = model.query.filter(model.name == ident).first()
     return user
 
 
-def permission_required(permission, model):
+def permission_required(permission):
     def permission_required_wrapper(func):
         def wrapper(*args, **kwargs):
-            identity = get_jwt_identity()
-            user = current_user(identity, model)
+            user = current_user()
             if user.permission == BLACK_LIST_USER:
                 abort(403, msg="you are in blacklist")
             if not user.permission >= permission:
@@ -35,3 +47,8 @@ def permission_required(permission, model):
             return func(*args, **kwargs)
         return wrapper
     return permission_required_wrapper
+
+
+
+def file_name_transfer(filename):
+    return uuid.uuid4().hex + filename

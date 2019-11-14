@@ -1,7 +1,7 @@
 from flask_restful import Api
 
-from App.api.movie_user.customer_orders import OrdersResource
-from App.api.movie_user.customers_api import CustomersResources
+from App.api.customer.customer_orders import OrdersResource
+from App.api.customer.customers_api import CustomersResources
 
 client_api = Api(prefix="/user")
 
