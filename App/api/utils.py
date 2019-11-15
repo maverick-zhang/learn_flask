@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity, get_jwt_claims
 from flask_restful import abort
 
 from App.models.admin.admin_user_model import AdminModel
-from App.models.cinema_admin.cinema_user_model import CinemaUserModel
+from App.models.cinema.cinema_user_model import CinemaUserModel
 from App.models.customer.customers import CustomerModel
 from App.models.model_constants import BLACK_LIST_USER
 
@@ -52,3 +52,11 @@ def permission_required(permission):
 
 def file_name_transfer(filename):
     return uuid.uuid4().hex + filename
+
+
+def valid_seats(seats, hall_id):
+    pass
+
+
+def parse_seats(seats):
+    pass

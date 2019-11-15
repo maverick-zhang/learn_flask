@@ -12,7 +12,7 @@ class BaseModel(models.Model):
             models.session.add(self)
             models.session.commit()
         except Exception as e:
-            return False
+            raise
         return True
 
     def delete(self):

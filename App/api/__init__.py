@@ -1,6 +1,6 @@
 from App.api.admin import admin_api
 from App.api.common import common_api
-from App.api.cinema_admin import cinema_client_api
+from App.api.cinema import cinema_client_api
 from App.api.customer import client_api
 
 

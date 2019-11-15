@@ -1,6 +1,5 @@
 from App.extensions import models
 from App.models import BaseModel
-from App.models.cinema_admin.cinema_user_model import CinemaUserModel
 
 """
 insert into cinemas(name,city,district,address,phone,score,hallnum,servicecharge,astrict,flag,isdelete)
@@ -24,7 +23,6 @@ insert into cinemas(name,city,district,address,phone,score,hallnum,servicecharge
 #     is_delete = db.Column(db.Boolean, default=False)
 
 class CinemaModel(BaseModel):
-    cinema_admin_id = models.Column(models.Integer, models.ForeignKey(CinemaUserModel.id))
     name = models.Column(models.String(64))
     city = models.Column(models.String(16))
     district = models.Column(models.String(16))
@@ -36,3 +34,4 @@ class CinemaModel(BaseModel):
     aStrict = models.Column(models.Float, default=10)
     flag = models.Column(models.Boolean, default=False)
     is_delete = models.Column(models.Boolean, default=False)
+    is_verified = models.Column(models.Boolean, default=False)

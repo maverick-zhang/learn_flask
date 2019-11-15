@@ -2,6 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from App.extensions import models
 from App.models import BaseModel
+from App.models.cinema.cinema_model import CinemaModel
 from App.models.model_constants import COMMON_CINEMA_ADMIN
 
 
@@ -13,7 +14,7 @@ class CinemaUserModel(BaseModel):
     is_super = models.Column(models.Boolean, default=False)
     is_verified = models.Column(models.Boolean, default=False)
     permission = models.Column(models.Integer, default=COMMON_CINEMA_ADMIN)
-
+    cinema_id = models.Column(models.Integer, models.ForeignKey(CinemaModel.id), nullable=False)
     @property
     def password(self):
         raise AttributeError("THE PASSWORD IS NOT ACCESSIBLE")

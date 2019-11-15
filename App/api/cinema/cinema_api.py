@@ -1,8 +1,8 @@
 from flask_jwt_extended import jwt_required
-from flask_restful import Resource, reqparse, fields, marshal
+from flask_restful import Resource, reqparse, fields, marshal, abort
 
 from App.api.utils import permission_required, current_user
-from App.models.cinema_admin.cinema_model import CinemaModel
+from App.models.cinema.cinema_model import CinemaModel
 from App.models.model_constants import COMMON_CINEMA_ADMIN, SUPER_CINEMA_ADMIN
 """
     cinema_admin_id = models.Column(models.Integer, models.ForeignKey(CinemaUserModel.id))
@@ -26,7 +26,6 @@ parse.add_argument("address", required=True, help="请输入影院详细地址")
 parse.add_argument("phone", required=True, help="请输入影院联系电话")
 
 cinema_fields = {
-    "cinema_admin_id": fields.Integer,
     "name": fields.String,
     "city": fields.String,
     "district": fields.String,
@@ -38,22 +37,47 @@ cinema_fields = {
     "aStrict": fields.Float,
     "flag": fields.Boolean,
     "is_delete": fields.Boolean,
+    "is_verified": fields.Boolean,
 }
 
-class CinemasResource(Resource):
+
+class CinemaResource(Resource):
     @jwt_required
     @permission_required(COMMON_CINEMA_ADMIN)
-    def get(self):
+    def get(self, id):
+        cinema = CinemaModel.query.get(id)
+        if not cinema:
+            abort(400, msg="参数不正确")
         data = {
-            "status":200,
+            "status": 200,
             "msg": "ok",
-
+            "data": marshal(cinema, cinema_fields)
         }
-
         return data
 
     @jwt_required
-    @permission_required(SUPER_CINEMA_ADMIN)
+    @permission_required(COMMON_CINEMA_ADMIN)
+    def put(self, id):
+        cinema = CinemaModel.query.get(id)
+        if not cinema:
+            abort(400, msg="参数不正确")
+        args = parse.parse_args()
+        cinema.city = args.get("city")
+        cinema.name = args.get("name")
+        cinema.district = args.get("district")
+        cinema.phone = args.get("phone")
+        cinema.address = args.get("address")
+        cinema.save()
+
+        data = {
+            "status": 200,
+            "msg": "ok",
+            "data": marshal(cinema, cinema_fields)
+        }
+        return data
+
+    @jwt_required
+    @permission_required(COMMON_CINEMA_ADMIN)
     def post(self):
         args = parse.parse_args()
         cinema = CinemaModel()
@@ -62,7 +86,6 @@ class CinemasResource(Resource):
         cinema.district = args.get("district")
         cinema.phone = args.get("phone")
         cinema.address = args.get("address")
-        cinema.cinema_admin_id = current_user().id
         cinema.save()
 
         data = {
@@ -72,16 +95,3 @@ class CinemasResource(Resource):
         }
 
         return data
-
-
-class CinemaResource(Resource):
-    @jwt_required
-    @permission_required(COMMON_CINEMA_ADMIN)
-    def get(self, id):
-        pass
-
-    def put(self, id):
-        pass
-
-    def patch(self, id):
-        pass
