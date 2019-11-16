@@ -3,12 +3,14 @@ import time
 
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse, marshal, fields, abort
+from sqlalchemy import or_
 
 from App.api.cinema.cinema_hall_api import hall_fields
 from App.api.common.movies_api import movie_fields
-from App.api.utils import permission_required, current_user
+from App.api.utils import permission_required, current_user, available_seats
 from App.models.cinema.cinema_hall_model import HallModel
 from App.models.cinema.cinema_movie_model import CinemaMovieModel
+from App.models.cinema.cinema_order_model import CinemaOrderModel, ORDER_SUCCESS, ORDER_WAITING_PAYMENT
 from App.models.cinema.hall_movie_model import HallMovieModel
 from App.models.common.movies import MovieModel
 from App.models.model_constants import COMMON_CINEMA_ADMIN
@@ -84,7 +86,10 @@ class HallMovieResource(Resource):
         hall_movie = HallMovieModel.query.get(id)
         if not hall_movie:
             abort(400, msg="参数错误")
-        hall = HallModel.query.get(hall_movie.hall_id)
+        hall_id = hall_movie.hall_id
+        hall = HallModel.query.get(hall_id)
+        safe_seats = available_seats(id, hall_id)
+        hall.seats = safe_seats
         movie = MovieModel.query.get(hall_movie.movie_id)
         movie_hall = {
             "movie": movie,

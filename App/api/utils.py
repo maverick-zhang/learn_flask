@@ -1,9 +1,12 @@
+import datetime
 import uuid
 
 from flask_jwt_extended import get_jwt_identity, get_jwt_claims
 from flask_restful import abort
 
 from App.models.admin.admin_user_model import AdminModel
+from App.models.cinema.cinema_hall_model import HallModel
+from App.models.cinema.cinema_order_model import CinemaOrderModel, ORDER_SUCCESS, ORDER_WAITING_PAYMENT
 from App.models.cinema.cinema_user_model import CinemaUserModel
 from App.models.customer.customers import CustomerModel
 from App.models.model_constants import BLACK_LIST_USER
@@ -54,9 +57,36 @@ def file_name_transfer(filename):
     return uuid.uuid4().hex + filename
 
 
-def valid_seats(seats, hall_id):
-    pass
+def valid_seats(seats, hall_movie_id, hall_id):
+    seats = seats.split("#")
+    safe_seats = available_seats(hall_movie_id, hall_id)
+    for seat in seats:
+        if seat not in safe_seats:
+            return False
+    return True
+
+
+def available_seats(hall_movie_id, hall_id):
+    hall = HallModel.query.get(hall_id)
+    seats_bought_orders = CinemaOrderModel.query.filter(CinemaOrderModel.hall_movie_id == hall_movie_id)
+    seats_bought_orders = seats_bought_orders.filter(CinemaOrderModel.order_status == ORDER_SUCCESS).all()
+    seats_locked_orders = CinemaOrderModel.query.filter(CinemaOrderModel.hall_movie_id == hall_movie_id)
+    seats_locked_orders = seats_locked_orders.filter(CinemaOrderModel.order_status == ORDER_WAITING_PAYMENT)
+    seats_locked_orders = seats_locked_orders.filter(CinemaOrderModel.order_time > datetime.datetime.now()
+                                                     - datetime.timedelta(minutes=15)).all()
+    orders = seats_bought_orders + seats_locked_orders
+    seats = []
+    for order in orders:
+        order_seats = order.seats.split("#")
+        seats.extend(order_seats)
+    available_seats = []
+    for seat in hall.seats.split("#"):
+        if seat not in seats:
+            available_seats.append(seat)
+
+
+    return "#".join(available_seats)
 
 
 def parse_seats(seats):
-    pass
+    return seats.split("#")

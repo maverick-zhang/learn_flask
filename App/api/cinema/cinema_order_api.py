@@ -98,7 +98,7 @@ class CinemaOrderResource(Resource):
         hall = HallModel.query.get(hall_id)
         cinema_id = hall.cinema_id
         seats = order_create_parse.parse_args().get("seats")
-        if not valid_seats(seats, hall_id):
+        if not valid_seats(seats, id, hall_id):
             abort(400, msg="座位不可选")
         order = CinemaOrderModel()
         order.hall_id = hall_id
